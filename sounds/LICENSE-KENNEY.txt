@@ -1,0 +1,8 @@
+Sound effects from Kenney.
+
+Sources:
+- https://kenney.nl/assets/ui-audio
+- https://kenney.nl/assets/interface-sounds
+
+License: CC0 1.0 Universal
+Attribution is not required, but appreciated.
