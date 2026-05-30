@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>도트용사 수학 스테이지</title>
+    <link rel="stylesheet" href="styles.css?v=17" />
+  </head>
+  <body>
+    <main class="shell" aria-live="polite">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">Math Quest</p>
+          <h1 id="questTitle">도트용사 토리의 수학 모험</h1>
+        </div>
+        <div class="progress-wrap">
+          <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" aria-label="소리 끄기">
+            <span aria-hidden="true">♪</span>
+          </button>
+          <div class="score" id="score">Stage 1 / 10</div>
+          <div class="progress" id="progress" aria-label="진행도"></div>
+        </div>
+      </section>
+
+      <section class="quest-board" aria-label="날짜별 스테이지 기록">
+        <div class="quest-board-head">
+          <div>
+            <p class="board-eyebrow">Daily Quest</p>
+            <h2 id="questDateTitle">2026년 5월 31일</h2>
+          </div>
+          <label class="quest-select-wrap" for="questSelect">
+            <span>날짜 선택</span>
+            <select id="questSelect"></select>
+          </label>
+          <div class="achievement">
+            <span id="achievementText">성취도 0% · 0/10 완료</span>
+            <div class="achievement-bar" aria-hidden="true">
+              <span id="achievementFill"></span>
+            </div>
+            <small id="attemptText">아직 푼 문제가 없습니다.</small>
+          </div>
+        </div>
+        <div class="stage-list" id="stageList"></div>
+      </section>
+
+      <div class="viewport">
+        <div class="slides" id="slides"></div>
+      </div>
+    </main>
+
+    <script src="script.js?v=17"></script>
+  </body>
+</html>
