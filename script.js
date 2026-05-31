@@ -1,7 +1,7 @@
 const quests = [
   {
     id: "2026-05-29",
-    label: "어제",
+    label: "그제",
     date: new Date("2026-05-29T00:00:00+09:00"),
     stages: [
       {
@@ -138,7 +138,7 @@ const quests = [
   },
   {
     id: "2026-05-30",
-    label: "오늘",
+    label: "어제",
     date: new Date("2026-05-30T00:00:00+09:00"),
     stages: [
   {
@@ -272,6 +272,143 @@ const quests = [
     image: "day2-stage-10-crystal.png"
   }
     ]
+  },
+  {
+    id: "2026-05-31",
+    label: "오늘",
+    date: new Date("2026-05-31T00:00:00+09:00"),
+    stages: [
+      {
+        title: "새벽 들판의 준비",
+        story: "토리는 새 모험을 시작하기 전에 간단한 짐을 챙기고 있어요.",
+        problem: [
+          "토리는 작은 주머니에 구슬 9개를 넣고, 친구에게서 구슬 6개를 더 받았습니다. 그중 4개는 연습용 표식으로 사용했습니다.",
+          "토리에게 남은 구슬은 몇 개일까요?"
+        ],
+        choices: ["12개", "10개", "11개", "13개"],
+        answer: 2,
+        clear: "토리가 출발 준비를 가볍게 마쳤어요.",
+        scene: "snack",
+        image: "day3-stage-01-meadow.png"
+      },
+      {
+        title: "가방 속 연필 꾸러미",
+        story: "토리는 연필이 든 가방을 정리하며 필요한 수를 맞추고 있어요.",
+        problem: [
+          "연필 5자루씩 들어 있는 꾸러미가 4개 있습니다. 토리는 여기에 낱개 연필 3자루를 더 넣었습니다.",
+          "가방 안의 연필은 모두 몇 자루일까요?"
+        ],
+        choices: ["23자루", "20자루", "25자루", "22자루"],
+        answer: 0,
+        clear: "토리가 연필 꾸러미를 정확히 챙겼어요.",
+        scene: "clock",
+        image: "day3-stage-02-bag.png"
+      },
+      {
+        title: "달빛 정원 울타리",
+        story: "토리는 정원 둘레에 울타리를 세우는 일을 도와주고 있어요.",
+        problem: [
+          "직사각형 정원의 가로는 9m, 세로는 6m입니다. 울타리를 둘레에 세우되, 문이 들어갈 3m 부분은 비워 둡니다.",
+          "울타리가 필요한 길이는 몇 m일까요?"
+        ],
+        choices: ["30m", "24m", "27m", "33m"],
+        answer: 2,
+        clear: "토리가 문이 들어갈 자리까지 생각했어요.",
+        scene: "bridge",
+        image: "day3-stage-03-garden.png"
+      },
+      {
+        title: "별빛 두 배 규칙",
+        story: "토리는 구름 관측소에서 별빛 숫자가 커지는 규칙을 살펴보고 있어요.",
+        problem: [
+          "별빛 숫자는 2, 5, 11, 23, 47, ? 순서로 이어집니다.",
+          "물음표에 들어갈 수는 무엇일까요?"
+        ],
+        choices: ["93", "95", "96", "97"],
+        answer: 1,
+        clear: "토리가 별빛이 두 배씩 커지는 규칙을 찾았어요.",
+        scene: "forest",
+        image: "day3-stage-04-observatory.png"
+      },
+      {
+        title: "장난감 공방의 상자",
+        story: "토리는 장난감 공방에서 블록 상자를 공평하게 나누려고 해요.",
+        problem: [
+          "큰 상자 2개에는 블록이 각각 18개씩 들어 있고, 작은 상자 1개에는 블록이 12개 들어 있습니다. 이 블록을 6명에게 똑같이 나누어 주려고 합니다.",
+          "한 명이 받는 블록은 몇 개일까요?"
+        ],
+        choices: ["6개", "9개", "10개", "8개"],
+        answer: 3,
+        clear: "토리가 블록을 모두에게 공평하게 나누었어요.",
+        scene: "gem",
+        image: "day3-stage-05-workshop.png"
+      },
+      {
+        title: "나루터 왕복 거리",
+        story: "토리는 강가 나루터에서 두 길의 거리를 비교하고 있어요.",
+        problem: [
+          "마을에서 나루터까지 가는 숲길은 760m입니다. 강가 길은 숲길보다 180m 더 깁니다.",
+          "강가 길로 갔다가 같은 길로 돌아오면 모두 몇 m를 걷게 될까요?"
+        ],
+        choices: ["1,760m", "1,880m", "1,520m", "940m"],
+        answer: 1,
+        clear: "토리가 왕복 거리까지 놓치지 않았어요.",
+        scene: "map",
+        image: "day3-stage-06-ferry.png"
+      },
+      {
+        title: "온실의 숨은 잎",
+        story: "토리는 마법 온실에서 물약 재료 수를 추리하고 있어요.",
+        problem: [
+          "초록 잎과 보라 꽃잎이 모두 34장 있습니다. 초록 잎은 보라 꽃잎보다 8장 더 많습니다.",
+          "초록 잎은 몇 장일까요?"
+        ],
+        choices: ["13장", "24장", "21장", "26장"],
+        answer: 2,
+        clear: "토리가 두 재료의 차이를 이용해 숨은 수를 찾았어요.",
+        scene: "stairs",
+        image: "day3-stage-07-greenhouse.png"
+      },
+      {
+        title: "기차역 출발 계획",
+        story: "토리는 마법 기차역에서 이동 시간을 거꾸로 계산하고 있어요.",
+        problem: [
+          "기차는 오전 10시 20분에 출발합니다. 토리는 표를 사는 데 12분, 승강장까지 가는 데 8분이 걸립니다. 또 출발 10분 전에는 승강장에 도착하고 싶습니다.",
+          "토리는 늦어도 몇 시에 표 사는 곳에 도착해야 할까요?"
+        ],
+        choices: ["오전 10시", "오전 9시 58분", "오전 10시 2분", "오전 9시 50분"],
+        answer: 3,
+        clear: "토리가 시간을 거꾸로 계산해 여유 있게 도착했어요.",
+        scene: "ribbon",
+        image: "day3-stage-08-station.png"
+      },
+      {
+        title: "원형 사원의 바닥 무늬",
+        story: "토리는 원형 사원의 바닥 무늬에서 반복되는 색 규칙을 발견했어요.",
+        problem: [
+          "바닥 무늬는 빨강, 파랑, 노랑, 초록이 이 순서로 반복됩니다.",
+          "왼쪽에서 37번째 무늬의 색은 무엇일까요?"
+        ],
+        choices: ["빨강", "파랑", "노랑", "초록"],
+        answer: 0,
+        clear: "토리가 반복 규칙의 나머지를 이용했어요.",
+        scene: "book",
+        image: "day3-stage-09-temple.png"
+      },
+      {
+        title: "수정문 마지막 암호",
+        story: "토리는 수정문 앞에서 가장 어려운 마지막 암호를 풀어야 해요.",
+        problem: [
+          "어떤 두 자리 수가 있습니다. 십의 자리 숫자는 일의 자리 숫자보다 3 작습니다. 두 숫자의 합은 11입니다.",
+          "이 두 자리 수는 무엇일까요?"
+        ],
+        choices: ["58", "49", "74", "47"],
+        answer: 3,
+        clear: "토리가 마지막 암호를 풀고 새 레벨을 통과했어요.",
+        scene: "castle",
+        image: "day3-stage-10-crystal.png"
+      }
+    ]
   }
 ];
 
@@ -289,7 +426,7 @@ const stageList = document.getElementById("stageList");
 
 let currentStage = 0;
 let locked = false;
-let activeQuestIndex = 1;
+let activeQuestIndex = quests.length - 1;
 let stages = quests[activeQuestIndex].stages;
 const questProgress = quests.map((quest) => ({
   attemptsLeft: quest.stages.map(() => 3),
