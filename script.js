@@ -409,8 +409,508 @@ const quests = [
         image: "day3-stage-10-crystal.png"
       }
     ]
-  }
+  },
+  ...makeJuneQuests()
 ];
+
+const reusedStageArt = [
+  { scene: "snack", image: "day3-stage-01-meadow.png" },
+  { scene: "clock", image: "day3-stage-02-bag.png" },
+  { scene: "bridge", image: "day3-stage-03-garden.png" },
+  { scene: "forest", image: "day3-stage-04-observatory.png" },
+  { scene: "gem", image: "day3-stage-05-workshop.png" },
+  { scene: "map", image: "day3-stage-06-ferry.png" },
+  { scene: "stairs", image: "day3-stage-07-greenhouse.png" },
+  { scene: "ribbon", image: "day3-stage-08-station.png" },
+  { scene: "book", image: "day3-stage-09-temple.png" },
+  { scene: "castle", image: "day3-stage-10-crystal.png" }
+];
+
+function getReusedStageArt() {
+  return [
+    { scene: "snack", image: "day3-stage-01-meadow.png" },
+    { scene: "clock", image: "day3-stage-02-bag.png" },
+    { scene: "bridge", image: "day3-stage-03-garden.png" },
+    { scene: "forest", image: "day3-stage-04-observatory.png" },
+    { scene: "gem", image: "day3-stage-05-workshop.png" },
+    { scene: "map", image: "day3-stage-06-ferry.png" },
+    { scene: "stairs", image: "day3-stage-07-greenhouse.png" },
+    { scene: "ribbon", image: "day3-stage-08-station.png" },
+    { scene: "book", image: "day3-stage-09-temple.png" },
+    { scene: "castle", image: "day3-stage-10-crystal.png" }
+  ];
+}
+
+function formatDateId(date) {
+  return seoulDateId(date);
+}
+
+function seoulDateId(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date);
+  const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${value.year}-${value.month}-${value.day}`;
+}
+
+function getInitialQuestIndex() {
+  const today = seoulDateId();
+  const exact = quests.findIndex((quest) => quest.id === today);
+  if (exact >= 0) return exact;
+
+  const pastIndex = quests.reduce((latest, quest, index) => (
+    quest.id <= today && (!quests[latest] || quest.id > quests[latest].id) ? index : latest
+  ), -1);
+  return pastIndex >= 0 ? pastIndex : quests.length - 1;
+}
+
+function questDisplayLabel(quest) {
+  const today = seoulDateId();
+  const oneDay = 24 * 60 * 60 * 1000;
+  const todayDate = new Date(`${today}T00:00:00+09:00`);
+  const diff = Math.round((quest.date - todayDate) / oneDay);
+  if (diff === 0) return "오늘";
+  if (diff === -1) return "어제";
+  if (diff === -2) return "그제";
+  if (diff > 0) return "예정";
+  return "지난 퀘스트";
+}
+
+function arrangeChoices(answerText, wrongTexts, seed) {
+  const answerSlot = [2, 0, 3, 1][seed % 4];
+  const ordered = [];
+  let wrongIndex = 0;
+  for (let index = 0; index < 4; index += 1) {
+    if (index === answerSlot) {
+      ordered[index] = answerText;
+    } else {
+      ordered[index] = wrongTexts[wrongIndex];
+      wrongIndex += 1;
+    }
+  }
+  return { choices: ordered, answer: answerSlot };
+}
+
+function makeNumberStage({ title, story, problem, answer, offsets, unit = "", clear, artIndex, seed }) {
+  const answerText = `${answer.toLocaleString("ko-KR")}${unit}`;
+  const wrongValues = [];
+  offsets.forEach((offset) => {
+    const value = answer + offset;
+    if (Number.isFinite(value) && value > 0 && value !== answer && !wrongValues.includes(value)) {
+      wrongValues.push(value);
+    }
+  });
+  let fallback = 1;
+  while (wrongValues.length < 3) {
+    const value = answer + fallback * ((seed % 5) + 2);
+    if (value > 0 && value !== answer && !wrongValues.includes(value)) {
+      wrongValues.push(value);
+    }
+    fallback += 1;
+  }
+  const wrongTexts = wrongValues.slice(0, 3).map((value) => `${value.toLocaleString("ko-KR")}${unit}`);
+  const arranged = arrangeChoices(answerText, wrongTexts, seed);
+  const artList = getReusedStageArt();
+  const art = artList[artIndex % artList.length];
+  return {
+    title,
+    story,
+    problem,
+    choices: arranged.choices,
+    answer: arranged.answer,
+    clear,
+    scene: art.scene,
+    image: art.image
+  };
+}
+
+function makeTextStage({ title, story, problem, answerText, wrongTexts, clear, artIndex, seed }) {
+  const arranged = arrangeChoices(answerText, wrongTexts, seed);
+  const artList = getReusedStageArt();
+  const art = artList[artIndex % artList.length];
+  return {
+    title,
+    story,
+    problem,
+    choices: arranged.choices,
+    answer: arranged.answer,
+    clear,
+    scene: art.scene,
+    image: art.image
+  };
+}
+
+function gcd(a, b) {
+  return b === 0 ? a : gcd(b, a % b);
+}
+
+function makeJuneWeekOne(day, stage) {
+  const seed = day * 10 + stage;
+  const makers = [
+    () => {
+      const pack = 6 + (day % 3);
+      const count = 3 + (stage % 2);
+      const extra = 4 + (day % 4);
+      const used = 5 + (stage % 3);
+      return makeNumberStage({
+        title: "숲길 간식 배낭",
+        story: "토리는 숲길에서 친구들과 나눌 간식을 정리하고 있어요.",
+        problem: [`간식 한 묶음에는 ${pack}개씩 들어 있습니다. 토리는 ${count}묶음을 챙기고, 마을에서 ${extra}개를 더 받았습니다. 그중 ${used}개를 나누어 주었습니다.`, "토리에게 남은 간식은 몇 개일까요?"],
+        answer: pack * count + extra - used,
+        offsets: [-2, 3, 5],
+        unit: "개",
+        clear: "토리가 간식 수를 차근차근 정리했어요.",
+        artIndex: 0,
+        seed
+      });
+    },
+    () => {
+      const hour = 2 + (day % 3);
+      const minute = 20 + stage * 3;
+      const travel = 18 + day + stage;
+      const start = hour * 60 + minute - travel;
+      const h = Math.floor(start / 60);
+      const m = String(start % 60).padStart(2, "0");
+      const timeText = (offset) => {
+        const total = start + offset;
+        return `오후 ${Math.floor(total / 60)}시 ${String(total % 60).padStart(2, "0")}분`;
+      };
+      return makeTextStage({
+        title: "시계탑 약속",
+        story: "토리는 시계탑 앞 약속 시간에 늦지 않으려고 해요.",
+        problem: [`토리는 오후 ${hour}시 ${minute}분에 친구를 만나기로 했습니다. 집에서 시계탑까지 ${travel}분이 걸립니다.`, "늦지 않으려면 늦어도 몇 시에 출발해야 할까요?"],
+        answerText: `오후 ${h}시 ${m}분`,
+        wrongTexts: [timeText(5), timeText(10), timeText(-5)],
+        clear: "토리가 시간을 거꾸로 계산했어요.",
+        artIndex: 1,
+        seed
+      });
+    },
+    () => {
+      const width = 7 + day;
+      const height = 4 + (stage % 4);
+      return makeNumberStage({
+        title: "정원 울타리",
+        story: "토리는 작은 정원에 울타리를 세우는 일을 도와주고 있어요.",
+        problem: [`직사각형 정원의 가로는 ${width}m, 세로는 ${height}m입니다.`, "정원의 둘레는 몇 m일까요?"],
+        answer: (width + height) * 2,
+        offsets: [-4, 4, 8],
+        unit: "m",
+        clear: "토리가 둘레를 정확히 구했어요.",
+        artIndex: 2,
+        seed
+      });
+    },
+    () => {
+      const first = 2 + (day % 4);
+      const diff = 3 + (stage % 3);
+      return makeNumberStage({
+        title: "별빛 규칙",
+        story: "토리는 관측소에서 별빛 숫자의 규칙을 찾고 있어요.",
+        problem: [`별빛 숫자는 ${first}, ${first + diff}, ${first + diff * 2}, ${first + diff * 3}, ? 순서로 이어집니다.`, "물음표에 들어갈 수는 무엇일까요?"],
+        answer: first + diff * 4,
+        offsets: [-diff, diff, diff + 2],
+        clear: "토리가 일정하게 커지는 규칙을 찾았어요.",
+        artIndex: 3,
+        seed
+      });
+    },
+    () => {
+      const total = 36 + day + stage;
+      const broken = 4 + (day % 3);
+      const friends = 4;
+      return makeNumberStage({
+        title: "공방 나눔 상자",
+        story: "토리는 장난감 공방에서 블록을 공평하게 나누려고 해요.",
+        problem: [`블록 ${total}개 중 망가진 ${broken}개를 빼고, 남은 블록을 친구 ${friends}명에게 똑같이 나누어 줍니다.`, "친구 한 명이 받는 블록은 몇 개일까요?"],
+        answer: Math.floor((total - broken) / friends),
+        offsets: [-1, 1, 2],
+        unit: "개",
+        clear: "토리가 공평하게 나누었어요.",
+        artIndex: 4,
+        seed
+      });
+    }
+  ];
+  return makers[(stage - 1) % makers.length]();
+}
+
+function makeJuneWeekTwo(day, stage) {
+  const seed = day * 10 + stage;
+  const makers = [
+    () => {
+      const total = 60 + (day % 7) * 6;
+      const denominator = [3, 4, 5][stage % 3];
+      const numerator = denominator - 2;
+      return makeNumberStage({
+        title: "마법 리본의 일부",
+        story: "토리는 축제 리본 중 일부를 장식에 쓰려고 해요.",
+        problem: [`리본이 모두 ${total}m 있습니다. 그중 ${denominator}분의 ${numerator}을 장식에 사용했습니다.`, "장식에 사용한 리본은 몇 m일까요?"],
+        answer: total / denominator * numerator,
+        offsets: [-3, 3, 6],
+        unit: "m",
+        clear: "토리가 분수만큼의 길이를 구했어요.",
+        artIndex: 7,
+        seed
+      });
+    },
+    () => {
+      const rows = 5 + (day % 3);
+      const cols = 8 + (stage % 4);
+      const empty = 6 + (day % 4);
+      return makeNumberStage({
+        title: "온실 화분 배열",
+        story: "토리는 온실의 화분 자리를 살펴보고 있어요.",
+        problem: [`화분 자리가 ${rows}줄, 한 줄에 ${cols}개씩 있습니다. 그중 ${empty}자리는 비어 있습니다.`, "화분이 놓인 자리는 몇 곳일까요?"],
+        answer: rows * cols - empty,
+        offsets: [-3, 3, 6],
+        unit: "곳",
+        clear: "토리가 전체에서 빈자리를 뺐어요.",
+        artIndex: 6,
+        seed
+      });
+    },
+    () => {
+      const price = 320 + day * 10;
+      const count = 3 + (stage % 3);
+      const paid = price * count + 500;
+      return makeNumberStage({
+        title: "시장 거스름돈",
+        story: "토리는 시장에서 필요한 물건을 사고 있어요.",
+        problem: [`한 개에 ${price}원인 물건을 ${count}개 사고 ${paid.toLocaleString("ko-KR")}원을 냈습니다.`, "거스름돈은 얼마일까요?"],
+        answer: paid - price * count,
+        offsets: [-100, 100, 200],
+        unit: "원",
+        clear: "토리가 물건값과 거스름돈을 비교했어요.",
+        artIndex: 0,
+        seed
+      });
+    },
+    () => {
+      const start = 4 + (day % 5);
+      const add = stage % 2 === 0 ? 1 : 3;
+      const seq = [start];
+      for (let index = 0; index < 4; index += 1) seq.push(seq.at(-1) * 2 + add);
+      return makeNumberStage({
+        title: "두 단계 숫자 규칙",
+        story: "토리는 별빛 장치가 만든 숫자 규칙을 살펴보고 있어요.",
+        problem: [`숫자는 ${seq[0]}, ${seq[1]}, ${seq[2]}, ${seq[3]}, ? 순서입니다. 앞의 수에 2를 곱한 뒤 ${add}을 더하는 규칙입니다.`, "물음표에 들어갈 수는 무엇일까요?"],
+        answer: seq[4],
+        offsets: [-add, add, add + 4],
+        clear: "토리가 곱하고 더하는 규칙을 찾았어요.",
+        artIndex: 3,
+        seed
+      });
+    },
+    () => {
+      const side = 6 + (day % 5);
+      const cut = 2 + (stage % 3);
+      return makeNumberStage({
+        title: "타일 바닥 넓이",
+        story: "토리는 사원의 바닥에 놓을 타일 넓이를 계산해요.",
+        problem: [`가로 ${side + 3}m, 세로 ${side}m인 바닥에서 작은 장식 자리 ${cut}m²를 비웁니다.`, "타일이 필요한 넓이는 몇 m²일까요?"],
+        answer: (side + 3) * side - cut,
+        offsets: [-side, side, cut + 4],
+        unit: "m²",
+        clear: "토리가 전체 넓이에서 빈자리를 뺐어요.",
+        artIndex: 8,
+        seed
+      });
+    }
+  ];
+  return makers[(stage - 1) % makers.length]();
+}
+
+function makeJuneWeekThree(day, stage) {
+  const seed = day * 10 + stage;
+  const makers = [
+    () => {
+      const a = 2 + (day % 4);
+      const b = a + 3;
+      const total = (a + b) * (5 + (stage % 4));
+      return makeNumberStage({
+        title: "물약 재료 비",
+        story: "토리는 물약 재료를 정해진 비율로 섞으려고 해요.",
+        problem: [`초록 잎과 보라 꽃잎의 비는 ${a}:${b}입니다. 두 재료가 모두 ${total}장일 때, 보라 꽃잎은 몇 장일까요?`],
+        answer: total / (a + b) * b,
+        offsets: [-b, b, a],
+        unit: "장",
+        clear: "토리가 전체를 비의 합으로 나누었어요.",
+        artIndex: 6,
+        seed
+      });
+    },
+    () => {
+      const avg = 18 + (day % 5);
+      const first = avg - 3;
+      const second = avg + 2;
+      const third = avg * 3 - first - second;
+      return makeNumberStage({
+        title: "세 번의 훈련 점수",
+        story: "토리는 훈련 점수의 평균을 맞추려고 해요.",
+        problem: [`세 번의 훈련 점수 평균은 ${avg}점입니다. 첫째 점수는 ${first}점, 둘째 점수는 ${second}점입니다.`, "셋째 점수는 몇 점일까요?"],
+        answer: third,
+        offsets: [-2, 2, 4],
+        unit: "점",
+        clear: "토리가 평균에서 전체 점수를 생각했어요.",
+        artIndex: 8,
+        seed
+      });
+    },
+    () => {
+      const everyA = 4 + (day % 3);
+      const everyB = 6 + (stage % 3) * 2;
+      const lcm = everyA * everyB / gcd(everyA, everyB);
+      return makeNumberStage({
+        title: "두 종소리의 만남",
+        story: "토리는 두 시계탑 종이 다시 함께 울리는 때를 찾고 있어요.",
+        problem: [`파란 종은 ${everyA}분마다, 금빛 종은 ${everyB}분마다 울립니다. 지금 동시에 울렸다면, 다시 동시에 울리는 것은 몇 분 뒤일까요?`],
+        answer: lcm,
+        offsets: [-2, 2, 4],
+        unit: "분",
+        clear: "토리가 두 수의 공통되는 시간을 찾았어요.",
+        artIndex: 1,
+        seed
+      });
+    },
+    () => {
+      const length = 8 + (day % 5);
+      const width = 5 + (stage % 4);
+      const height = 3 + (day % 3);
+      return makeNumberStage({
+        title: "수정 상자의 부피",
+        story: "토리는 수정 상자가 차지하는 공간을 계산하고 있어요.",
+        problem: [`직육면체 상자의 가로는 ${length}cm, 세로는 ${width}cm, 높이는 ${height}cm입니다.`, "상자의 부피는 몇 cm³일까요?"],
+        answer: length * width * height,
+        offsets: [-width * height, width * height, length],
+        unit: "cm³",
+        clear: "토리가 세 방향의 길이를 모두 곱했어요.",
+        artIndex: 9,
+        seed
+      });
+    },
+    () => {
+      const speed = 70 + day;
+      const time = 3 + (stage % 3);
+      const rest = 25 + (day % 4) * 5;
+      return makeNumberStage({
+        title: "나루터 이동 계획",
+        story: "토리는 일정한 속도로 이동한 거리를 계산하고 있어요.",
+        problem: [`토리는 1분에 ${speed}m씩 ${time}분 동안 걷고, 이어서 ${rest}m를 더 걸었습니다.`, "토리가 걸은 거리는 모두 몇 m일까요?"],
+        answer: speed * time + rest,
+        offsets: [-speed, speed, rest],
+        unit: "m",
+        clear: "토리가 속도와 시간을 이용했어요.",
+        artIndex: 5,
+        seed
+      });
+    }
+  ];
+  return makers[(stage - 1) % makers.length]();
+}
+
+function makeJuneWeekFour(day, stage) {
+  const seed = day * 10 + stage;
+  const makers = [
+    () => {
+      const price = 1200 + day * 30;
+      const discount = 10 + (stage % 3) * 5;
+      return makeNumberStage({
+        title: "축제 할인 계산",
+        story: "토리는 축제 가게의 할인 가격을 따져 보고 있어요.",
+        problem: [`정가가 ${price.toLocaleString("ko-KR")}원인 물건을 ${discount}% 할인해 줍니다.`, "할인받는 금액은 얼마일까요?"],
+        answer: price * discount / 100,
+        offsets: [-60, 60, 120],
+        unit: "원",
+        clear: "토리가 퍼센트를 금액으로 바꾸었어요.",
+        artIndex: 0,
+        seed
+      });
+    },
+    () => {
+      const hidden = 6 + (day % 8) + Math.floor(stage / 6);
+      const result = hidden * 3 + 4;
+      return makeNumberStage({
+        title: "문지기의 숨은 수",
+        story: "토리는 문지기가 낸 식에서 숨은 수를 찾아야 해요.",
+        problem: [`어떤 수에 3을 곱하고 4를 더했더니 ${result}가 되었습니다.`, "어떤 수는 무엇일까요?"],
+        answer: hidden,
+        offsets: [-2, 2, 3],
+        clear: "토리가 거꾸로 계산해 숨은 수를 찾았어요.",
+        artIndex: 9,
+        seed
+      });
+    },
+    () => {
+      const red = 3 + (day % 3);
+      const blue = 4 + (stage % 4);
+      const total = red + blue;
+      return makeTextStage({
+        title: "보석 주머니 확률",
+        story: "토리는 보석 주머니에서 색을 뽑을 가능성을 생각하고 있어요.",
+        problem: [`주머니에는 빨간 보석 ${red}개와 파란 보석 ${blue}개가 있습니다. 눈을 감고 하나를 뽑습니다.`, "파란 보석을 뽑을 가능성은 어느 것일까요?"],
+        answerText: `${blue}/${total}`,
+        wrongTexts: [`${red}/${total + 1}`, `${blue + 1}/${total}`, `${total}/${blue}`],
+        clear: "토리가 원하는 경우와 전체 경우를 비교했어요.",
+        artIndex: 4,
+        seed
+      });
+    },
+    () => {
+      const base = 5 + (day % 4) + Math.floor(stage / 6);
+      const seq = [base, base + 2, base + 6, base + 12, base + 20];
+      return makeNumberStage({
+        title: "차이가 커지는 규칙",
+        story: "토리는 숫자 사이의 차이가 변하는 규칙을 발견했어요.",
+        problem: [`숫자는 ${seq[0]}, ${seq[1]}, ${seq[2]}, ${seq[3]}, ${seq[4]}, ? 순서입니다. 늘어나는 차이는 2, 4, 6, 8처럼 커집니다.`, "다음 수는 무엇일까요?"],
+        answer: seq[4] + 10,
+        offsets: [-4, 2, 6],
+        clear: "토리가 차이의 차이를 살폈어요.",
+        artIndex: 3,
+        seed
+      });
+    },
+    () => {
+      const small = 4 + (day % 5) + Math.floor(stage / 6);
+      const large = small + 5;
+      return makeNumberStage({
+        title: "두 상자의 무게",
+        story: "토리는 상자 무게를 비교해 전체 무게를 구하고 있어요.",
+        problem: [`작은 상자 한 개는 ${small}kg이고, 큰 상자 한 개는 ${large}kg입니다. 작은 상자 2개와 큰 상자 3개의 무게는 모두 몇 kg일까요?`],
+        answer: small * 2 + large * 3,
+        offsets: [-large, small, large],
+        unit: "kg",
+        clear: "토리가 두 종류의 상자를 따로 계산했어요.",
+        artIndex: 2,
+        seed
+      });
+    }
+  ];
+  return makers[(stage - 1) % makers.length]();
+}
+
+function makeJuneQuest(day) {
+  const date = new Date(`2026-06-${String(day).padStart(2, "0")}T00:00:00+09:00`);
+  const week = day <= 7 ? 1 : day <= 14 ? 2 : day <= 21 ? 3 : 4;
+  const makers = [makeJuneWeekOne, makeJuneWeekTwo, makeJuneWeekThree, makeJuneWeekFour];
+  const stages = Array.from({ length: 10 }, (_, index) => {
+    const stage = makers[week - 1](day, index + 1);
+    return index < 5 ? stage : { ...stage, title: `${stage.title} 심화` };
+  });
+  return {
+    id: formatDateId(date),
+    label: `${week}주차 레벨 ${week + 2}`,
+    date,
+    stages
+  };
+}
+
+function makeJuneQuests() {
+  return Array.from({ length: 30 }, (_, index) => makeJuneQuest(index + 1));
+}
 
 const slides = document.getElementById("slides");
 const progress = document.getElementById("progress");
@@ -426,7 +926,7 @@ const stageList = document.getElementById("stageList");
 
 let currentStage = 0;
 let locked = false;
-let activeQuestIndex = quests.length - 1;
+let activeQuestIndex = getInitialQuestIndex();
 let stages = quests[activeQuestIndex].stages;
 const questProgress = quests.map((quest) => ({
   attemptsLeft: quest.stages.map(() => 3),
@@ -515,7 +1015,7 @@ function formatDateTitle(date = currentQuest().date) {
 
 function makeQuestSelect() {
   questSelect.innerHTML = quests.map((quest, index) => (
-    `<option value="${index}">${quest.label} · ${formatDateTitle(quest.date)}</option>`
+    `<option value="${index}">${questDisplayLabel(quest)} · ${formatDateTitle(quest.date)}</option>`
   )).join("");
   questSelect.value = String(activeQuestIndex);
 }
