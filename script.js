@@ -892,13 +892,348 @@ function makeJuneWeekFour(day, stage) {
   return makers[(stage - 1) % makers.length]();
 }
 
+function makeJuneDeepStage(day, stage, week) {
+  const seed = day * 10 + stage + week * 100;
+  const slot = stage - 6;
+
+  const weeklyMakers = {
+    1: [
+      () => {
+        const river = 420 + day * 12;
+        const hill = river + 135;
+        const shortcut = 80 + (day % 4) * 10;
+        return makeNumberStage({
+          title: "나루터 짐 배달 심화",
+          story: "토리는 약초 상자를 나루터 창고까지 옮기고 있어요. 짐을 들고 갈 때와 빈손으로 돌아올 때 선택할 수 있는 길이 달라서, 설명을 차분히 읽어야 합니다.",
+          problem: [`갈 때 고를 수 있는 길은 강가 길 ${river}m와 언덕길 ${hill}m입니다. 토리는 무거운 상자를 흔들지 않으려고 강가 길로 갔고, 돌아올 때는 빈 상자라서 강가 길보다 ${shortcut}m 짧은 샛길을 이용했습니다.`, "토리가 출발한 곳으로 돌아올 때까지 걸은 거리는 모두 몇 m일까요?"],
+          answer: river + (river - shortcut),
+          offsets: [-shortcut, shortcut, hill - river],
+          unit: "m",
+          clear: "토리가 갈 때와 돌아올 때의 길이 다른 점을 알아챘어요.",
+          artIndex: 5,
+          seed
+        });
+      },
+      () => {
+        const width = 10 + (day % 5);
+        const height = 7 + (day % 3);
+        const gate = 3 + (day % 2);
+        return makeNumberStage({
+          title: "정원 문 자리 심화",
+          story: "마을 정원은 직사각형인데, 토리는 입구가 될 부분을 비워 두고 울타리를 주문해야 해요. 전체 둘레를 먼저 생각한 뒤 빼야 하는 길이를 찾아야 합니다.",
+          problem: [`정원의 가로는 ${width}m, 세로는 ${height}m입니다. 네 변을 따라 울타리를 세우지만, 사람들이 드나들 문 ${gate}m만큼은 울타리를 세우지 않습니다.`, "토리가 실제로 주문해야 하는 울타리의 길이는 몇 m일까요?"],
+          answer: (width + height) * 2 - gate,
+          offsets: [-gate, gate, 2 * gate],
+          unit: "m",
+          clear: "토리가 전체 둘레에서 문 자리를 뺐어요.",
+          artIndex: 2,
+          seed
+        });
+      },
+      () => {
+        const startHour = 9 + (day % 2);
+        const startMinute = 15 + (day % 4) * 5;
+        const walk = 18 + day;
+        const buy = 9 + (day % 5);
+        const wait = 10;
+        const target = startHour * 60 + startMinute - wait - buy - walk;
+        return makeTextStage({
+          title: "기차역 준비 시간 심화",
+          story: "토리는 기차를 놓치지 않으려고 이동 시간, 표 사는 시간, 미리 도착할 시간을 한꺼번에 계획합니다.",
+          problem: [`기차는 오전 ${startHour}시 ${String(startMinute).padStart(2, "0")}분에 출발합니다. 집에서 역까지 ${walk}분, 표를 사는 데 ${buy}분이 걸리고, 출발 ${wait}분 전에는 승강장에 도착해 있어야 합니다.`, "토리가 모든 준비를 끝내고 여유 있게 서 있으려면, 늦어도 몇 시에 집에서 출발해야 할까요?"],
+          answerText: `오전 ${Math.floor(target / 60)}시 ${String(target % 60).padStart(2, "0")}분`,
+          wrongTexts: [
+            `오전 ${Math.floor((target + 5) / 60)}시 ${String((target + 5) % 60).padStart(2, "0")}분`,
+            `오전 ${Math.floor((target + 10) / 60)}시 ${String((target + 10) % 60).padStart(2, "0")}분`,
+            `오전 ${Math.floor((target - 5) / 60)}시 ${String((target - 5) % 60).padStart(2, "0")}분`
+          ],
+          clear: "토리가 여러 준비 시간을 모두 거꾸로 계산했어요.",
+          artIndex: 7,
+          seed
+        });
+      },
+      () => {
+        const first = 3 + (day % 4);
+        const seq = [first, first + 2, first + 5, first + 9, first + 14];
+        return makeNumberStage({
+          title: "등불 간격 규칙 심화",
+          story: "사원 길의 등불 숫자는 그냥 일정하게 커지지 않아요. 토리는 등불 사이의 차이가 어떻게 바뀌는지 따로 기록해야 합니다.",
+          problem: [`등불 숫자는 ${seq[0]}, ${seq[1]}, ${seq[2]}, ${seq[3]}, ${seq[4]}, ? 순서입니다. 앞의 수에서 더해지는 수가 2, 3, 4, 5처럼 1씩 커집니다.`, "같은 규칙이 계속된다면 다음 등불에 들어갈 수는 무엇일까요?"],
+          answer: seq[4] + 6,
+          offsets: [-2, 2, 4],
+          clear: "토리가 숫자 사이의 차이를 다시 살폈어요.",
+          artIndex: 8,
+          seed
+        });
+      },
+      () => {
+        const tens = 4 + (day % 4);
+        const ones = tens + 2;
+        return makeNumberStage({
+          title: "성문 두 자리 암호 심화",
+          story: "성문에는 숫자 두 개를 모두 맞혀야 열리는 암호판이 있어요. 한 조건만 맞는 수를 고르면 문은 열리지 않습니다.",
+          problem: [`암호는 두 자리 수입니다. 십의 자리 숫자와 일의 자리 숫자의 합은 ${tens + ones}이고, 일의 자리 숫자는 십의 자리 숫자보다 2 큽니다.`, "두 조건을 모두 만족하는 암호는 무엇일까요?"],
+          answer: tens * 10 + ones,
+          offsets: [-9, 9, 11],
+          clear: "토리가 두 조건을 모두 만족하는 수를 찾았어요.",
+          artIndex: 9,
+          seed
+        });
+      }
+    ],
+    2: [
+      () => {
+        const total = 72 + (day % 5) * 8;
+        const first = total / 4;
+        const second = total / 3;
+        return makeNumberStage({
+          title: "리본 두 장식 심화",
+          story: "축제 준비반은 긴 리본을 두 곳에 나누어 쓰고 남은 리본으로 작은 깃발을 만들기로 했어요. 토리는 사용한 두 부분을 각각 전체에서 찾아야 합니다.",
+          problem: [`리본은 모두 ${total}m입니다. 무대 장식에는 전체의 4분의 1, 입구 장식에는 전체의 3분의 1을 사용했습니다. 두 장식은 겹치지 않습니다.`, "두 곳에 쓰고 남은 리본은 몇 m일까요?"],
+          answer: total - first - second,
+          offsets: [-4, 4, 8],
+          unit: "m",
+          clear: "토리가 두 번 사용한 양을 모두 뺐어요.",
+          artIndex: 7,
+          seed
+        });
+      },
+      () => {
+        const kg = 2 + (day % 3);
+        const gram = 350 + (day % 4) * 50;
+        const use = 900 + (day % 3) * 100;
+        return makeNumberStage({
+          title: "약초 무게 단위 심화",
+          story: "온실 관리인은 무게를 kg과 g으로 함께 적어 두었어요. 토리는 물약에 쓴 양과 남은 양을 비교하려고 단위를 하나로 맞춥니다.",
+          problem: [`처음 약초는 ${kg}kg ${gram}g 있습니다. 물약을 만들 때 ${use}g을 사용했고, 기록표에는 남은 양을 g으로 적어야 합니다.`, "기록표에 써야 할 남은 약초는 몇 g일까요?"],
+          answer: kg * 1000 + gram - use,
+          offsets: [-100, 100, 250],
+          unit: "g",
+          clear: "토리가 kg을 g으로 바꾸어 계산했어요.",
+          artIndex: 6,
+          seed
+        });
+      },
+      () => {
+        const length = 11 + (day % 4);
+        const width = 6 + (day % 3);
+        const pond = 12 + (day % 4);
+        return makeNumberStage({
+          title: "타일과 연못 넓이 심화",
+          story: "토리는 정원 바닥을 새로 꾸미지만, 가운데 연못 자리에는 타일을 깔 수 없어요. 전체 모양과 비워 둘 부분을 따로 봐야 합니다.",
+          problem: [`가로 ${length}m, 세로 ${width}m인 직사각형 정원에 타일을 깔려고 합니다. 가운데 연못 자리 ${pond}m²는 물이 있어서 비워 둡니다.`, "타일이 실제로 필요한 넓이는 몇 m²일까요?"],
+          answer: length * width - pond,
+          offsets: [-width, width, pond],
+          unit: "m²",
+          clear: "토리가 전체 넓이에서 연못 넓이를 뺐어요.",
+          artIndex: 2,
+          seed
+        });
+      },
+      () => {
+        const average = 24 + (day % 4);
+        const a = average - 5;
+        const b = average + 3;
+        const c = average * 3 - a - b;
+        return makeNumberStage({
+          title: "훈련 평균 점수 심화",
+          story: "토리의 훈련표에는 평균 점수만 먼저 적혀 있고, 마지막 기록 한 칸이 비어 있어요. 평균을 전체 점수로 바꾸어 생각해야 합니다.",
+          problem: [`세 번의 훈련 평균은 ${average}점입니다. 첫 번째 훈련은 ${a}점, 두 번째 훈련은 ${b}점이었습니다.`, "평균이 맞으려면 세 번째 훈련 점수는 몇 점이어야 할까요?"],
+          answer: c,
+          offsets: [-3, 3, 5],
+          unit: "점",
+          clear: "토리가 평균을 전체 점수로 바꾸었어요.",
+          artIndex: 8,
+          seed
+        });
+      },
+      () => {
+        const price = 450 + day * 20;
+        const count = 3 + (day % 3);
+        const coupon = 200 + (day % 4) * 50;
+        return makeNumberStage({
+          title: "시장 쿠폰 계산 심화",
+          story: "시장에서는 물건을 여러 개 산 뒤 마지막 계산에서 쿠폰을 한 번만 사용할 수 있어요. 토리는 먼저 전체 금액을 구해야 합니다.",
+          problem: [`한 개에 ${price}원인 작은 물건을 ${count}개 샀습니다. 계산대에서는 전체 금액에서 쿠폰 ${coupon}원을 딱 한 번만 빼 줍니다.`, "토리가 실제로 낸 돈은 얼마일까요?"],
+          answer: price * count - coupon,
+          offsets: [-100, 100, coupon],
+          unit: "원",
+          clear: "토리가 전체 물건값을 먼저 구하고 쿠폰을 뺐어요.",
+          artIndex: 0,
+          seed
+        });
+      }
+    ],
+    3: [
+      () => {
+        const a = 3 + (day % 3);
+        const b = a + 4;
+        const unit = 6 + (day % 4);
+        return makeNumberStage({
+          title: "물약 비율 배합 심화",
+          story: "토리는 물약 책에 적힌 비율을 보고 재료를 준비합니다. 한 묶음의 비율이 여러 번 반복된다는 뜻을 읽어야 해요.",
+          problem: [`초록 잎과 보라 꽃잎은 항상 ${a}:${b}의 비로 섞어야 합니다. 오늘은 이 비율 한 묶음을 ${unit}번 반복해 큰 물약을 만들었습니다.`, "준비해야 하는 보라 꽃잎은 모두 몇 장일까요?"],
+          answer: b * unit,
+          offsets: [-b, b, a],
+          unit: "장",
+          clear: "토리가 비의 한 부분이 몇 번 반복되는지 보았어요.",
+          artIndex: 6,
+          seed
+        });
+      },
+      () => {
+        const first = 6 + (day % 3);
+        const second = 8 + (day % 4);
+        const lcm = first * second / gcd(first, second);
+        return makeNumberStage({
+          title: "두 등대 신호 심화",
+          story: "해안 길에서 두 등대가 서로 다른 간격으로 켜집니다. 토리는 둘이 동시에 켜지는 다음 순간을 찾으려고 시간표를 머릿속으로 맞춰 봅니다.",
+          problem: [`파란 등대는 ${first}분마다, 금빛 등대는 ${second}분마다 빛납니다. 두 등대가 지금 동시에 켜졌고, 각 등대는 같은 간격을 계속 지킵니다.`, "두 등대가 다시 동시에 켜지는 것은 몇 분 뒤일까요?"],
+          answer: lcm,
+          offsets: [-first, first, second],
+          unit: "분",
+          clear: "토리가 두 간격의 공통 시간을 찾았어요.",
+          artIndex: 3,
+          seed
+        });
+      },
+      () => {
+        const length = 9 + (day % 5);
+        const width = 5 + (day % 4);
+        const height = 4 + (day % 3);
+        return makeNumberStage({
+          title: "수정 상자 공간 심화",
+          story: "수정 조각을 담을 상자는 바닥만 넓어서는 부족해요. 토리는 가로, 세로, 높이를 모두 살펴 실제 공간을 계산해야 합니다.",
+          problem: [`직육면체 수정 상자의 안쪽 가로는 ${length}cm, 세로는 ${width}cm, 높이는 ${height}cm입니다. 작은 수정은 상자 안의 공간만큼 담을 수 있습니다.`, "상자 안의 부피는 몇 cm³일까요?"],
+          answer: length * width * height,
+          offsets: [-length * width, length * width, width * height],
+          unit: "cm³",
+          clear: "토리가 가로, 세로, 높이를 모두 사용했어요.",
+          artIndex: 9,
+          seed
+        });
+      },
+      () => {
+        const speed = 75 + day;
+        const minutes = 4 + (day % 3);
+        const rest = 40 + (day % 5) * 10;
+        return makeNumberStage({
+          title: "강가 이동 기록 심화",
+          story: "토리는 강가 기록장을 보며 이동한 거리를 정리합니다. 일정하게 걸은 구간과 따로 더한 징검다리 구간을 구분해야 해요.",
+          problem: [`토리는 강가 길에서 1분에 ${speed}m씩 ${minutes}분 동안 걸었습니다. 그 뒤 속도를 재지 않은 징검다리 ${rest}m를 조심히 더 건넜습니다.`, "기록장에 써야 할 전체 이동 거리는 몇 m일까요?"],
+          answer: speed * minutes + rest,
+          offsets: [-speed, speed, rest],
+          unit: "m",
+          clear: "토리가 일정한 이동과 추가 거리를 함께 계산했어요.",
+          artIndex: 5,
+          seed
+        });
+      },
+      () => {
+        const blue = 5 + (day % 4);
+        const red = 3 + (day % 3);
+        const total = blue + red + 2;
+        return makeTextStage({
+          title: "보석 뽑기 가능성 심화",
+          story: "토리는 주머니 속을 보지 않고 보석 하나를 뽑습니다. 원하는 색의 개수와 전체 보석 개수를 따로 세어 가능성을 나타내야 해요.",
+          problem: [`주머니에는 파란 보석 ${blue}개, 빨간 보석 ${red}개, 투명 보석 2개가 있습니다. 토리는 이 중에서 하나만 뽑습니다.`, "파란 보석을 뽑을 가능성을 분수로 나타내면 어느 것일까요?"],
+          answerText: `${blue}/${total}`,
+          wrongTexts: [`${blue - 1}/${total}`, `${blue}/${total + 1}`, `${total}/${blue}`],
+          clear: "토리가 원하는 경우와 전체 경우를 나누어 보았어요.",
+          artIndex: 4,
+          seed
+        });
+      }
+    ],
+    4: [
+      () => {
+        const price = 1800 + day * 20;
+        const discount = 15 + (day % 2) * 5;
+        const coupon = 100 + (stage % 3) * 50;
+        return makeNumberStage({
+          title: "축제 할인 계산 심화",
+          story: "축제 상점에서는 먼저 퍼센트 할인을 해 주고, 마지막 계산대에서 종이 쿠폰을 한 장 더 받아 줍니다. 토리는 할인 순서를 놓치면 안 됩니다.",
+          problem: [`정가가 ${price.toLocaleString("ko-KR")}원인 모험 도구를 ${discount}% 할인받았습니다. 그 뒤 계산대에서 쿠폰 ${coupon}원을 한 번 더 뺐습니다.`, "토리가 지갑에서 실제로 낸 돈은 얼마일까요?"],
+          answer: price - price * discount / 100 - coupon,
+          offsets: [-100, 100, coupon],
+          unit: "원",
+          clear: "토리가 할인 뒤 쿠폰을 적용했어요.",
+          artIndex: 0,
+          seed
+        });
+      },
+      () => {
+        const hidden = 8 + (day % 7) + Math.floor(stage / 6);
+        const result = hidden * 4 - 5;
+        return makeNumberStage({
+          title: "수정문 식 암호 심화",
+          story: "수정문은 토리가 넣은 수를 보이지 않게 바꾼 뒤 결과만 보여 줍니다. 토리는 계산을 거꾸로 따라가 처음 수를 찾아야 해요.",
+          problem: [`수정문은 어떤 수에 4를 곱한 뒤 5를 빼서 ${result}를 만들었습니다.`, "수정문에 처음 들어간 수는 무엇일까요?"],
+          answer: hidden,
+          offsets: [-2, 2, 4],
+          clear: "토리가 뺄셈과 곱셈을 거꾸로 풀었어요.",
+          artIndex: 9,
+          seed
+        });
+      },
+      () => {
+        const base = 6 + (day % 5) + Math.floor(stage / 6);
+        const seq = [base, base + 3, base + 8, base + 15, base + 24];
+        return makeNumberStage({
+          title: "차이의 차이 규칙 심화",
+          story: "별빛 지도에는 숫자가 이어져 있지만, 바로 다음 수만 보고는 규칙이 보이지 않아요. 토리는 수 사이의 차이를 한 번 더 비교합니다.",
+          problem: [`숫자는 ${seq[0]}, ${seq[1]}, ${seq[2]}, ${seq[3]}, ${seq[4]}, ? 순서입니다. 늘어나는 차이는 3, 5, 7, 9처럼 2씩 커집니다.`, "같은 방식으로 이어질 때 다음 수는 무엇일까요?"],
+          answer: seq[4] + 11,
+          offsets: [-4, 2, 6],
+          clear: "토리가 한 단계 더 숨어 있는 규칙을 찾았어요.",
+          artIndex: 3,
+          seed
+        });
+      },
+      () => {
+        const outer = 12 + (day % 4);
+        const inner = 5 + (stage % 3);
+        const path = 2;
+        return makeNumberStage({
+          title: "사각 연못 둘레길 심화",
+          story: "궁전 정원에는 큰 정사각형 구역 안에 작은 정사각형 연못이 있어요. 토리는 걸을 수 있는 길의 넓이만 구해야 합니다.",
+          problem: [`바깥 정사각형 한 변은 ${outer}m이고, 가운데 연못 한 변은 ${inner}m입니다. 연못 안쪽은 걸을 수 없으므로, 큰 정사각형에서 작은 정사각형을 뺀 부분만 둘레길입니다.`, "둘레길의 넓이는 몇 m²일까요?"],
+          answer: outer * outer - inner * inner,
+          offsets: [-outer, outer, inner * path],
+          unit: "m²",
+          clear: "토리가 큰 정사각형에서 작은 정사각형을 뺐어요.",
+          artIndex: 2,
+          seed
+        });
+      },
+      () => {
+        const small = 5 + (day % 5) + Math.floor(stage / 6);
+        const large = small + 6;
+        const total = small * 3 + large * 2;
+        return makeNumberStage({
+          title: "두 상자의 무게 심화",
+          story: "마지막 배에는 작은 상자와 큰 상자를 함께 실어야 해요. 토리는 상자 종류별 무게와 개수를 따로 계산한 뒤 합쳐야 합니다.",
+          problem: [`작은 상자 한 개는 ${small}kg이고, 큰 상자 한 개는 ${large}kg입니다. 배에는 작은 상자 3개와 큰 상자 2개를 실었습니다.`, "배에 실은 짐의 무게는 모두 몇 kg일까요?"],
+          answer: total,
+          offsets: [-large, small, large],
+          unit: "kg",
+          clear: "토리가 두 종류의 짐을 따로 계산해 합쳤어요.",
+          artIndex: 5,
+          seed
+        });
+      }
+    ]
+  };
+
+  return weeklyMakers[week][slot]();
+}
+
 function makeJuneQuest(day) {
   const date = new Date(`2026-06-${String(day).padStart(2, "0")}T00:00:00+09:00`);
   const week = day <= 7 ? 1 : day <= 14 ? 2 : day <= 21 ? 3 : 4;
   const makers = [makeJuneWeekOne, makeJuneWeekTwo, makeJuneWeekThree, makeJuneWeekFour];
   const stages = Array.from({ length: 10 }, (_, index) => {
-    const stage = makers[week - 1](day, index + 1);
-    return index < 5 ? stage : { ...stage, title: `${stage.title} 심화` };
+    return index < 5 ? makers[week - 1](day, index + 1) : makeJuneDeepStage(day, index + 1, week);
   });
   return {
     id: formatDateId(date),
